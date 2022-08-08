@@ -1,6 +1,6 @@
 package com.coriolang.data
 
-import com.coriolang.data.tables.TodoItems
+import com.coriolang.data.todoitem.TodoItems
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction

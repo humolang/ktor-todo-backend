@@ -1,6 +1,5 @@
-package com.coriolang.data.tables
+package com.coriolang.data.todoitem
 
-import com.coriolang.data.Importance
 import org.jetbrains.exposed.dao.id.IntIdTable
 
 object TodoItems : IntIdTable() {
