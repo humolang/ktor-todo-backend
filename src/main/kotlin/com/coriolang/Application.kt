@@ -20,7 +20,7 @@ fun Application.module() {
 
     DatabaseSettings.init(url, driver, user, password)
 
+    configureSerialization()
     configureRouting()
     configureSecurity()
-    configureSerialization()
 }

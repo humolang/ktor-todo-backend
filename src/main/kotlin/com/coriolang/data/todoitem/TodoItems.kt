@@ -1,8 +1,9 @@
 package com.coriolang.data.todoitem
 
-import org.jetbrains.exposed.dao.id.IntIdTable
+import com.coriolang.data.user.Users
+import org.jetbrains.exposed.dao.id.UUIDTable
 
-object TodoItems : IntIdTable() {
+object TodoItems : UUIDTable() {
 
     val text = text("text")
     val importance = enumeration<Importance>("importance")
@@ -10,4 +11,6 @@ object TodoItems : IntIdTable() {
     val creationDate = long("creation_date")
     val deadlineDate = long("deadline_date")
     val modificationDate = long("modification_date")
+
+    val user = reference("user", Users)
 }

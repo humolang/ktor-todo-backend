@@ -1,6 +1,8 @@
 package com.coriolang.data.todoitem
 
+import com.coriolang.data.user.UserEntity
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.*
 
 object TodoItemDao {
 
@@ -10,24 +12,25 @@ object TodoItemDao {
         }
     }
 
-    fun updateList(todoItems: List<TodoItem>): List<TodoItem> {
+    fun updateList(todoItems: List<TodoItem>, user: UserEntity): List<TodoItem> {
         for (item in todoItems) {
-            val serverItem = findById(item.id)
+            val id = UUID.fromString(item.id)
+            val serverItem = findById(id)
 
             if (serverItem == null) {
-                insert(item)
+                insert(item, user)
                 continue
             }
 
             if (serverItem.modificationDate < item.modificationDate) {
-                update(item)
+                update(id, item)
             }
         }
 
         return getList()
     }
 
-    fun findById(id: Int): TodoItem? {
+    fun findById(id: UUID): TodoItem? {
         val todoItem = transaction {
             TodoItemEntity.findById(id)
         }
@@ -35,24 +38,27 @@ object TodoItemDao {
         return todoItem?.toSerializable()
     }
 
-    fun insert(todoItem: TodoItem): TodoItem {
+    fun insert(todoItem: TodoItem, user: UserEntity): TodoItem {
+        val id = UUID.fromString(todoItem.id)
+
         val item = transaction {
-            TodoItemEntity.new {
+            TodoItemEntity.new(id) {
                 text = todoItem.text
                 importance = todoItem.importance
                 isCompleted = todoItem.isCompleted
                 creationDate = todoItem.creationDate
                 deadlineDate = todoItem.deadlineDate
                 modificationDate = todoItem.modificationDate
+                this.user = user
             }
         }
 
         return item.toSerializable()
     }
 
-    fun update(todoItem: TodoItem): TodoItem? {
+    fun update(id: UUID, todoItem: TodoItem): TodoItem? {
         val item = transaction {
-            val serverItem = TodoItemEntity.findById(todoItem.id)
+            val serverItem = TodoItemEntity.findById(id)
                 ?: return@transaction null
 
             serverItem.apply {
@@ -68,7 +74,7 @@ object TodoItemDao {
         return item?.toSerializable()
     }
 
-    fun delete(id: Int): TodoItem? {
+    fun delete(id: UUID): TodoItem? {
         return transaction {
             val serverItem = TodoItemEntity.findById(id)
                 ?: return@transaction null

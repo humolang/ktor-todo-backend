@@ -1,12 +1,14 @@
 package com.coriolang.data.todoitem
 
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
+import com.coriolang.data.user.UserEntity
+import org.jetbrains.exposed.dao.UUIDEntity
+import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
+import java.util.*
 
-class TodoItemEntity(id: EntityID<Int>) : IntEntity(id) {
+class TodoItemEntity(uuid: EntityID<UUID>) : UUIDEntity(uuid) {
 
-    companion object : IntEntityClass<TodoItemEntity>(TodoItems)
+    companion object : UUIDEntityClass<TodoItemEntity>(TodoItems)
 
     var text by TodoItems.text
     var importance by TodoItems.importance
@@ -15,8 +17,10 @@ class TodoItemEntity(id: EntityID<Int>) : IntEntity(id) {
     var deadlineDate by TodoItems.deadlineDate
     var modificationDate by TodoItems.modificationDate
 
+    var user by UserEntity referencedOn TodoItems.user
+
     fun toSerializable() = TodoItem(
-        id = id.value,
+        id = id.value.toString(),
         text = text,
         importance = importance,
         isCompleted = isCompleted,
