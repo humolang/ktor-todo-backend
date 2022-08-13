@@ -18,7 +18,7 @@ import java.util.UUID
 
 fun Application.configureRouting() {
     routing {
-        post("/register") {
+        post("/registration") {
             val user = try {
                 call.receive<User>()
             } catch (e: ContentTransformationException) {
