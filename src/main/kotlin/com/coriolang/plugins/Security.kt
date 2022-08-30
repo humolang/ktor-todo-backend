@@ -101,7 +101,8 @@ fun Application.configureSecurity() {
                 .sign(Algorithm.RSA256(publicKey as RSAPublicKey, privateKey as RSAPrivateKey))
 
             call.respond(
-                hashMapOf("token" to token)
+                status = HttpStatusCode.OK,
+                message = hashMapOf("token" to token)
             )
         }
     }
