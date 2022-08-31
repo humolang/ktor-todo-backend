@@ -3,22 +3,18 @@ package com.coriolang
 import com.coriolang.data.DatabaseSettings
 import io.ktor.server.application.*
 import com.coriolang.plugins.*
-import io.ktor.network.tls.certificates.*
-import java.io.File
 
 fun main(args: Array<String>): Unit =
     io.ktor.server.netty.EngineMain.main(args)
 
-// generate keystore file
-//fun main(args: Array<String>) {
-//    val keyStoreFile = File("build/keystore.jks")
-//    val keystore = generateCertificate(
-//        file = keyStoreFile,
-//        keyAlias = "sampleAlias",
-//        keyPassword = "foobar",
-//        jksPassword = "foobar"
-//    )
-//}
+// generate keystore file using keytool
+// write -ext SAN=ip:10.0.2.2 for successfully testing in android emulator
+// keytool -keystore keystore.jks -alias sampleAlias -genkeypair -keyalg RSA -keysize 4096 -validity 3 -dname 'CN=localhost, OU=ktor, O=ktor, L=Unspecified, ST=Unspecified, C=US' -ext SAN=ip:10.0.2.2
+
+// export a certificate from a keystore
+// keytool -export -alias sampleAlias -file extracas.crt -keystore keystore.jks
+
+// use extracas.crt file in android network security config
 
 @Suppress("unused") // application.conf references the main function. This annotation prevents the IDE from marking it as unused.
 fun Application.module() {
