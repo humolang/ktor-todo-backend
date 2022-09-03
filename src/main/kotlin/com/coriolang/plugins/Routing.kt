@@ -50,8 +50,24 @@ fun Application.configureRouting() {
             route("/list") {
                 // get list
                 get {
-                    val list = TodoItemDao.getList()
-                    call.respond(list)
+                    val session = call.sessions.get<UserSession>()
+                        ?: return@get call.respondText(
+                            "Session doesn't exist or is expired",
+                            status = HttpStatusCode.BadRequest
+                        )
+
+                    val user = UserDao.getEntityByUsername(session.username)
+                        ?: return@get call.respondText(
+                            "No such user",
+                            status = HttpStatusCode.NotFound
+                        )
+
+                    val list = TodoItemDao.getList(user)
+
+                    call.respond(
+                        status = HttpStatusCode.OK,
+                        message = list
+                    )
                 }
 
                 // update list
@@ -78,7 +94,11 @@ fun Application.configureRouting() {
                     }
 
                     val updatedList = TodoItemDao.updateList(list, user)
-                    call.respond(updatedList)
+
+                    call.respond(
+                        status = HttpStatusCode.OK,
+                        message = updatedList
+                    )
                 }
 
                 // get element
@@ -96,7 +116,10 @@ fun Application.configureRouting() {
                             status = HttpStatusCode.NotFound
                         )
 
-                    call.respond(item)
+                    call.respond(
+                        status = HttpStatusCode.OK,
+                        message = item
+                    )
                 }
 
                 // add element
@@ -123,7 +146,11 @@ fun Application.configureRouting() {
                     }
 
                     val insertedItem = TodoItemDao.insert(item, user)
-                    call.respond(insertedItem)
+
+                    call.respond(
+                        status = HttpStatusCode.OK,
+                        message = insertedItem
+                    )
                 }
 
                 // change element
@@ -150,7 +177,10 @@ fun Application.configureRouting() {
                             status = HttpStatusCode.NotFound
                         )
 
-                    call.respond(updatedItem)
+                    call.respond(
+                        status = HttpStatusCode.OK,
+                        message = updatedItem
+                    )
                 }
 
                 // delete element
@@ -168,7 +198,10 @@ fun Application.configureRouting() {
                             status = HttpStatusCode.NotFound
                         )
 
-                    call.respond(deletedItem)
+                    call.respond(
+                        status = HttpStatusCode.OK,
+                        message = deletedItem
+                    )
                 }
             }
         }

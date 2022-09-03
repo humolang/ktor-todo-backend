@@ -6,8 +6,8 @@ import java.util.*
 
 object TodoItemDao {
 
-    fun getList(): List<TodoItem> = transaction {
-        TodoItemEntity.all().map {
+    fun getList(user: UserEntity): List<TodoItem> = transaction {
+        user.todoItems.map {
             it.toSerializable()
         }
     }
@@ -27,7 +27,7 @@ object TodoItemDao {
             }
         }
 
-        return getList()
+        return getList(user)
     }
 
     fun findById(id: UUID): TodoItem? {
