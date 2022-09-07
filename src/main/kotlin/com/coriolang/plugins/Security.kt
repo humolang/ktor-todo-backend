@@ -97,7 +97,7 @@ fun Application.configureSecurity() {
                 .withAudience(audience)
                 .withIssuer(issuer)
                 .withClaim("username", user.username)
-                .withExpiresAt(Date(System.currentTimeMillis() + 28800000)) // 8 hours
+                .withExpiresAt(Date(System.currentTimeMillis() + 15778800000)) // 8 hours = 28800000 ms; 6 months = 15778800000 ms
                 .sign(Algorithm.RSA256(publicKey as RSAPublicKey, privateKey as RSAPrivateKey))
 
             call.respond(

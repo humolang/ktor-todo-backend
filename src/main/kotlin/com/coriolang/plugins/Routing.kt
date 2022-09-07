@@ -42,7 +42,7 @@ fun Application.configureRouting() {
 
             call.respondText(
                 "User created",
-                status = HttpStatusCode.Created
+                status = HttpStatusCode.OK
             )
         }
 
