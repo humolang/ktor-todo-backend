@@ -32,6 +32,21 @@ fun Application.configureSecurity() {
         .rateLimited(10, 1, TimeUnit.MINUTES)
         .build()
 
+    val createToken = { username: String ->
+        val publicKey = jwkProvider.get("858fc477-8be9-ed64-038d-07cc2db6c6c0").publicKey
+        val keySpecPKCS8 = PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyString))
+        val privateKey = KeyFactory.getInstance("RSA").generatePrivate(keySpecPKCS8)
+
+        val token = JWT.create()
+            .withAudience(audience)
+            .withIssuer(issuer)
+            .withClaim("username", username)
+            .withExpiresAt(Date(System.currentTimeMillis() + 15778800000)) // 8 hours = 28800000 ms; 6 months = 15778800000 ms
+            .sign(Algorithm.RSA256(publicKey as RSAPublicKey, privateKey as RSAPrivateKey))
+
+        token
+    }
+
     install(Authentication) {
         jwt("auth-jwt") {
             realm = myRealm
@@ -89,16 +104,29 @@ fun Application.configureSecurity() {
                 UserSession(user.username)
             )
 
-            val publicKey = jwkProvider.get("858fc477-8be9-ed64-038d-07cc2db6c6c0").publicKey
-            val keySpecPKCS8 = PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyString))
-            val privateKey = KeyFactory.getInstance("RSA").generatePrivate(keySpecPKCS8)
+            val token = createToken(user.username)
 
-            val token = JWT.create()
-                .withAudience(audience)
-                .withIssuer(issuer)
-                .withClaim("username", user.username)
-                .withExpiresAt(Date(System.currentTimeMillis() + 15778800000)) // 8 hours = 28800000 ms; 6 months = 15778800000 ms
-                .sign(Algorithm.RSA256(publicKey as RSAPublicKey, privateKey as RSAPrivateKey))
+            call.respond(
+                status = HttpStatusCode.OK,
+                message = hashMapOf("token" to token)
+            )
+        }
+
+        post("/authorize") {
+            val username = try {
+                call.receiveText()
+            } catch (e: ContentTransformationException) {
+                return@post call.respondText(
+                    "No content received",
+                    status = HttpStatusCode.BadRequest
+                )
+            }
+
+            call.sessions.set(
+                UserSession(username)
+            )
+
+            val token = createToken(username)
 
             call.respond(
                 status = HttpStatusCode.OK,
